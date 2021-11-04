@@ -1,0 +1,31 @@
+{
+    "transcription_id": "0005",
+    "date": "2021-11-04T08:55:12.420604", 
+    "transcript": [
+        {
+            "timestamp": 0.06,
+            "speaker": "Agent",
+            "text": "Hello, how can I help you?"
+        },
+        {
+            "timestamp": 1.64,
+            "speaker": "Caller",
+            "text": "I would really like to understand what is going on with you guys. My internet hasn't worked for one week!"
+        },
+        {
+            "timestamp": 4.28,
+            "speaker": "Agent",
+            "text": "I'm sorry to hear that, can you please state your customer id?"
+        },
+        {
+            "timestamp": 6.64,
+            "speaker": "Caller",
+            "text": "Yes my customer id is 1 2 3 4 5 6"
+        },
+        {
+            "timestamp": 8.21,
+            "speaker": "Agent",
+            "text": "Ok, thank you, let me look you up."
+        }
+    ]
+}

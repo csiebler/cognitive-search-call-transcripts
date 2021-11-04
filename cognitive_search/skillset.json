@@ -1,0 +1,227 @@
+{
+    "name": "transcription-skillset",
+    "description": "",
+    "skills": [
+        {
+            "@odata.type": "#Microsoft.Skills.Text.MergeSkill",
+            "name": "#1",
+            "description": "Create temporary field with the whole transcript conversation (omits agent/caller fields)",
+            "context": "/document",
+            "insertPreTag": " ",
+            "insertPostTag": " ",
+            "inputs": [
+                {
+                    "name": "text",
+                    "source": "/document/empty_field_that_does_not_exist",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "itemsToInsert",
+                    "source": "/document/transcript/*/text",
+                    "sourceContext": null,
+                    "inputs": []
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "mergedText",
+                    "targetName": "merged_text"
+                }
+            ]
+        },
+        {
+            "@odata.type": "#Microsoft.Skills.Text.LanguageDetectionSkill",
+            "name": "#2",
+            "description": "Detects the language of the transcript",
+            "context": "/document",
+            "defaultCountryHint": null,
+            "modelVersion": null,
+            "inputs": [
+                {
+                    "name": "text",
+                    "source": "/document/merged_text",
+                    "sourceContext": null,
+                    "inputs": []
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "languageCode",
+                    "targetName": "language"
+                }
+            ]
+        },
+        {
+            "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+            "name": "#3",
+            "description": "Extract key phrases from the transcript",
+            "context": "/document",
+            "defaultLanguageCode": "en",
+            "maxKeyPhraseCount": null,
+            "modelVersion": null,
+            "inputs": [
+                {
+                    "name": "text",
+                    "source": "/document/merged_text",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "languageCode",
+                    "source": "/document/language",
+                    "sourceContext": null,
+                    "inputs": []
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "keyPhrases",
+                    "targetName": "keyphrases"
+                }
+            ]
+        },
+        {
+            "@odata.type": "#Microsoft.Skills.Text.V3.SentimentSkill",
+            "name": "#4",
+            "description": "Extract sentiment from the full transcript",
+            "context": "/document",
+            "defaultLanguageCode": "en",
+            "modelVersion": null,
+            "includeOpinionMining": false,
+            "inputs": [
+                {
+                    "name": "text",
+                    "source": "/document/merged_text",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "languageCode",
+                    "source": "/document/language",
+                    "sourceContext": null,
+                    "inputs": []
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "sentiment",
+                    "targetName": "sentiment"
+                },
+                {
+                    "name": "confidenceScores",
+                    "targetName": "confidenceScores"
+                },
+                {
+                    "name": "sentences",
+                    "targetName": "sentences"
+                }
+            ]
+        },
+        {
+            "@odata.type": "#Microsoft.Skills.Util.ShaperSkill",
+            "name": "#5",
+            "description": "Used to generate a temporary projection for the knowledge store",
+            "context": "/document",
+            "inputs": [
+                {
+                    "name": "metadata_storage_name",
+                    "source": "/document/metadata_storage_name",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "transcription_id",
+                    "source": "/document/transcription_id",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "date",
+                    "source": "/document/date",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "key_phrases",
+                    "source": "/document/keyphrases",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "sentiment",
+                    "source": "/document/sentiment",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "sentiment_positive_score",
+                    "source": "/document/confidenceScores/positive",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "sentiment_neutral_score",
+                    "source": "/document/confidenceScores/neutral",
+                    "sourceContext": null,
+                    "inputs": []
+                },
+                {
+                    "name": "sentiment_negative_score",
+                    "source": "/document/confidenceScores/negative",
+                    "sourceContext": null,
+                    "inputs": []
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "output",
+                    "targetName": "projection"
+                }
+            ]
+        }
+    ],
+    "cognitiveServices": {
+        "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+        "description": "<Your Cognitive Services Resource ID>",
+        "key": "<Your Cognitive Services key>"
+    },
+    "knowledgeStore": {
+        "storageConnectionString": "<Your Storage Account Connection String>",
+        "projections": [
+            {
+                "tables": [
+                    {
+                        "tableName": "Transcripts",
+                        "referenceKeyName": null,
+                        "generatedKeyName": "Transcription",
+                        "source": "/document/projection",
+                        "sourceContext": null,
+                        "inputs": []
+                    },
+                    {
+                        "tableName": "KeyPhrases",
+                        "referenceKeyName": null,
+                        "generatedKeyName": "KeyPhrase",
+                        "source": null,
+                        "sourceContext": "/document/projection/key_phrases/*",
+                        "inputs": [
+                            {
+                                "name": "key_phrases",
+                                "source": "/document/projection/key_phrases/*",
+                                "sourceContext": null,
+                                "inputs": []
+                            }
+                        ]
+                    }
+                ],
+                "objects": [],
+                "files": []
+            }
+        ],
+        "parameters": {
+            "synthesizeGeneratedKeyName": true
+        }
+    },
+    "encryptionKey": null
+}

@@ -1,0 +1,16 @@
+{
+    "name": "transcripts",
+    "description": null,
+    "type": "azureblob",
+    "subtype": null,
+    "credentials": {
+        "connectionString": "<Your Storage Account Connection String>"
+    },
+    "container": {
+        "name": "transcripts",
+        "query": null
+    },
+    "dataChangeDetectionPolicy": null,
+    "dataDeletionDetectionPolicy": null,
+    "encryptionKey": null
+}
